@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>英德茶文化體驗之旅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Microsoft JhengHei';
+            background-color: #f0fdf4; /* Light green background */
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10 10c-5 0-5 10 0 10s5-10 0-10zm20 20c-5 0-5 10 0 10s5-10 0-10z" fill="%23dcfce7" fill-rule="evenodd"/></svg>');
+            touch-action: none; /* Prevent scroll on touch devices while playing */
+            overflow: hidden;
+        }
+        .game-container {
+            max-width: 500px;
+            margin: 0 auto;
+            height: 100vh;
+            background: linear-gradient(to bottom, #ffffff, #f0fdf4);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .screen.active {
+            display: flex;
+        }
+        
+        /* SVGs for UI */
+        .svg-icon { width: 100%; height: 100%; }
+        .char-btn { transition: transform 0.2s; }
+        .char-btn:hover { transform: scale(1.05); }
+        .char-btn.selected { border-color: #22c55e; background-color: #dcfce7; transform: scale(1.05); }
+        
+        .slider-container { margin-bottom: 1.5rem; }
+        input[type=range] {
+            width: 100%;
+            accent-color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="app">
+    
+    <!-- Part 1: Character Selection -->
+    <div id="screen-part1" class="screen active justify-center items-center">
+        <h1 class="text-3xl font-bold text-green-800 mb-8 text-center">英德茶文化體驗之旅</h1>
+        <h2 class="text-xl mb-6 text-gray-700">選擇你的角色</h2>
+        
+        <div class="flex gap-6 w-full justify-center mb-8">
+            <!-- Boy -->
+            <button onclick="selectCharacter('boy')" id="btn-char-boy" class="char-btn border-4 border-transparent p-4 rounded-xl flex flex-col items-center bg-white w-32 shadow-lg">
+                <div class="w-20 h-20 mb-2">
+                    <svg viewBox="0 0 100 100" class="svg-icon">
+                        <!-- Shoulders/Shirt -->
+                        <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
+                        <path d="M 40 60 L 50 75 L 60 60 Z" fill="#fff" /> <!-- Collar -->
+                        <!-- Neck -->
+                        <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
+                        <!-- Head -->
+                        <circle cx="50" cy="35" r="22" fill="#FFE0BD" />
+                        <!-- Face -->
+                        <circle cx="42" cy="32" r="2" fill="#333" />
+                        <circle cx="58" cy="32" r="2" fill="#333" />
+                        <path d="M 45 42 Q 50 48 55 42" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                        <!-- Glasses -->
+                        <rect x="35" y="28" width="12" height="8" rx="2" fill="none" stroke="#333" stroke-width="1.5"/>
+                        <rect x="53" y="28" width="12" height="8" rx="2" fill="none" stroke="#333" stroke-width="1.5"/>
+                        <line x1="47" y1="32" x2="53" y2="32" stroke="#333" stroke-width="1.5"/>
+                        <!-- Hair -->
+                        <path d="M 25 35 C 25 10, 75 10, 75 35 C 75 20, 60 15, 50 18 C 40 15, 25 20, 25 35 Z" fill="#222" />
+                    </svg>
+                </div>
+                <span class="font-bold text-gray-700">男生</span>
+            </button>
+            
+            <!-- Girl -->
+            <button onclick="selectCharacter('girl')" id="btn-char-girl" class="char-btn border-4 border-transparent p-4 rounded-xl flex flex-col items-center bg-white w-32 shadow-lg">
+                <div class="w-20 h-20 mb-2">
+                    <svg viewBox="0 0 100 100" class="svg-icon">
+                        <!-- Hair Back -->
+                        <path d="M 25 35 C 10 50, 20 80, 35 70 C 30 60, 25 50, 25 35 Z" fill="#222" />
+                        <path d="M 75 35 C 90 50, 80 80, 65 70 C 70 60, 75 50, 75 35 Z" fill="#222" />
+                        <!-- Shoulders/Shirt -->
+                        <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
+                        <path d="M 35 60 L 65 60 L 50 75 Z" fill="#fff" /> <!-- Collar -->
+                        <path d="M 45 70 L 55 70 L 50 85 Z" fill="#89A8C9" /> <!-- Tie -->
+                        <!-- Neck -->
+                        <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
+                        <!-- Head -->
+                        <circle cx="50" cy="35" r="22" fill="#FFE0BD" />
+                        <!-- Face -->
+                        <circle cx="42" cy="35" r="2" fill="#333" />
+                        <circle cx="58" cy="35" r="2" fill="#333" />
+                        <path d="M 46 44 Q 50 48 54 44" fill="none" stroke="#e07a5f" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="38" cy="40" r="3" fill="#ffb6c1" opacity="0.6"/>
+                        <circle cx="62" cy="40" r="3" fill="#ffb6c1" opacity="0.6"/>
+                        <!-- Hair Front -->
+                        <path d="M 25 35 C 25 10, 75 10, 75 35 C 70 15, 50 15, 45 25 C 45 15, 30 15, 25 35 Z" fill="#222" />
+                    </svg>
+                </div>
+                <span class="font-bold text-gray-700">女生</span>
+            </button>
+        </div>
+        
+        <button onclick="nextScreen('part2')" class="bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full max-w-xs disabled:opacity-50" id="btn-start" disabled>開始旅程</button>
+    </div>
+
+    <!-- Part 2: Intro -->
+    <div id="screen-part2" class="screen bg-green-50">
+        <h2 class="text-2xl font-bold text-green-800 mb-4 border-b-2 border-green-200 pb-2">背景與目的</h2>
+        <div class="bg-white p-5 rounded-xl shadow-sm text-gray-700 leading-relaxed overflow-y-auto mb-6 text-justify text-sm sm:text-base">
+            <p class="mb-3">是次內地考察地點為英德，我們參觀當地茶園、了解英德紅茶的歷史、亦親身體驗採摘和炒捻茶葉，並且認識到茶文化豐富的內涵。</p>
+            <p class="mb-3">行程最令我難忘的是可以實踐採茶、制茶、識茶、品茶的傳統技藝，也有機會品嘗擂茶粥。</p>
+            <p class="mb-3">英德紅茶被譽為中國三大紅茶之一，連外國人也非常喜愛。英德仍保留著濃厚的飲茶文化，「客來敬茶」是英德人日常的禮節。</p>
+            <p class="mb-3">遊戲設計理念來自英德「以茶敬客，以茶睦鄰」的文化，希望藉互動遊戲提升同學對茶文化的興趣，學懂欣賞中華文化豐富的內涵及其價值。</p>
+            <p class="font-bold text-green-700 mt-4">現在希望透過呢一個遊戲簡單講述一下當天在當地茶園學會的一些知識，現在一起去體驗吧！</p>
+        </div>
+        <button onclick="nextScreen('part3')" class="mt-auto bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full text-center">準備出發</button>
+    </div>
+
+    <!-- Part 3: Equipment -->
+    <div id="screen-part3" class="screen justify-center items-center">
+        <h2 class="text-2xl font-bold text-green-800 mb-2">換上裝備</h2>
+        <p class="text-gray-600 mb-6">請選擇你的採茶草帽與竹籃</p>
+        
+        <div class="w-full bg-blue-50 p-4 rounded-xl mb-6 flex justify-center items-center h-40">
+            <!-- Preview Area -->
+            <div class="relative w-32 h-32" id="preview-container">
+                <!-- Char gets injected here -->
+            </div>
+        </div>
+
+        <div class="w-full mb-4">
+            <h3 class="font-bold text-gray-700 mb-2">選擇草帽款式：</h3>
+            <div class="flex gap-4">
+                <button onclick="selectHat('floral')" id="btn-hat-floral" class="hat-btn flex-1 border-2 border-gray-200 p-2 rounded bg-white hover:border-green-400 shadow-sm">
+                    <svg viewBox="0 0 100 50" class="w-full h-12">
+                        <!-- Floral Hat -->
+                        <path d="M 5 45 Q 50 -10 95 45 Z" fill="#20B2AA" />
+                        <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#188c86" />
+                        <path d="M 5 45 Q 50 -10 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
+                        <path d="M 5 45 Q 50 55 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
+                        <!-- Flowers -->
+                        <g transform="translate(30, 20) scale(0.6)">
+                            <circle cx="0" cy="-5" r="4" fill="#FFC0CB"/><circle cx="5" cy="-2" r="4" fill="#FFC0CB"/><circle cx="3" cy="4" r="4" fill="#FFC0CB"/><circle cx="-3" cy="4" r="4" fill="#FFC0CB"/><circle cx="-5" cy="-2" r="4" fill="#FFC0CB"/><circle cx="0" cy="0" r="3" fill="#FFD700"/>
+                        </g>
+                        <g transform="translate(60, 25) scale(0.5)">
+                            <circle cx="0" cy="-5" r="4" fill="#FFF"/><circle cx="5" cy="-2" r="4" fill="#FFF"/><circle cx="3" cy="4" r="4" fill="#FFF"/><circle cx="-3" cy="4" r="4" fill="#FFF"/><circle cx="-5" cy="-2" r="4" fill="#FFF"/><circle cx="0" cy="0" r="3" fill="#FFD700"/>
+                        </g>
+                        <g transform="translate(50, 12) scale(0.4)">
+                            <circle cx="0" cy="-5" r="4" fill="#FF69B4"/><circle cx="5" cy="-2" r="4" fill="#FF69B4"/><circle cx="3" cy="4" r="4" fill="#FF69B4"/><circle cx="-3" cy="4" r="4" fill="#FF69B4"/><circle cx="-5" cy="-2" r="4" fill="#FF69B4"/><circle cx="0" cy="0" r="3" fill="#FFD700"/>
+                        </g>
+                    </svg>
+                    <div class="text-xs text-center mt-2 font-bold text-gray-700">花紋斗笠</div>
+                </button>
+                <button onclick="selectHat('plain')" id="btn-hat-plain" class="hat-btn flex-1 border-2 border-gray-200 p-2 rounded bg-white hover:border-green-400 shadow-sm">
+                    <svg viewBox="0 0 100 50" class="w-full h-12">
+                        <!-- Plain Hat -->
+                        <path d="M 5 45 Q 50 -10 95 45 Z" fill="#E9C46A" />
+                        <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#D4A33B" />
+                        <!-- Weaving lines -->
+                        <path d="M 20 35 Q 50 0 80 35" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
+                        <path d="M 35 40 Q 50 15 65 40" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
+                        <path d="M 15 45 L 50 5 L 85 45" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.5"/>
+                        <path d="M 30 45 L 50 20 L 70 45" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.5"/>
+                    </svg>
+                    <div class="text-xs text-center mt-2 font-bold text-gray-700">傳統竹帽</div>
+                </button>
+            </div>
+        </div>
+
+        <button onclick="startPickingGame()" class="mt-auto bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full text-center" id="btn-go-pick" disabled>前往茶園採茶</button>
+    </div>
+
+    <!-- Part 4: Picking Game -->
+    <div id="screen-part4" class="screen p-0 relative bg-green-100">
+        <!-- Game UI Overlay -->
+        <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start pointer-events-none z-10">
+            <div class="bg-white/80 p-2 rounded shadow backdrop-blur-sm">
+                <div class="text-sm font-bold text-green-800">目標：採摘嫩芽</div>
+                <div class="text-xs text-gray-600">嫩芽 +5 | 老葉 +1 | 枯葉 -2</div>
+                <div class="font-bold text-xl mt-1 text-green-700" id="pick-score">分數: 0</div>
+            </div>
+            <div class="bg-white/80 p-2 rounded shadow font-bold text-xl text-blue-600 backdrop-blur-sm" id="pick-time">30s</div>
+        </div>
+        <!-- Canvas -->
+        <canvas id="picking-canvas"></canvas>
+    </div>
+
+    <!-- Part 5: Roasting Intro -->
+    <div id="screen-part5-intro" class="screen justify-center items-center text-center">
+        <h2 class="text-3xl font-bold text-orange-600 mb-4">殺青 (炒茶)</h2>
+        <div class="bg-orange-50 p-6 rounded-xl mb-6 border border-orange-200">
+            <h3 class="font-bold text-lg mb-2">製茶知識：</h3>
+            <p class="text-gray-700 mb-2">須帶手套炒茶葉。</p>
+            <p class="text-gray-700 mb-2">殺青須高溫，勤翻動。</p>
+            <p class="text-gray-700">目的：迅速脫水，抑制茶葉氧化。</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm w-full mb-8">
+            <p class="font-bold text-gray-800">遊戲玩法：</p>
+            <p class="text-gray-600 text-sm">在接下來的畫面中，<strong class="text-orange-500">快速滑動手指/鼠標</strong>來翻炒鐵鍋中的茶葉。保持翻炒直到殺青完成！</p>
+        </div>
+        <button onclick="startRoastingGame()" class="bg-orange-500 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-orange-600 transition w-full">開始炒茶</button>
+    </div>
+
+    <!-- Part 5: Roasting Game -->
+    <div id="screen-part5" class="screen p-0 relative bg-gray-900">
+        <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start pointer-events-none z-10">
+            <div class="bg-white/90 p-2 rounded shadow">
+                <div class="text-sm font-bold text-orange-800">殺青進度</div>
+                <div class="w-32 h-4 bg-gray-300 rounded-full mt-1 overflow-hidden border border-gray-400">
+                    <div id="roast-progress-bar" class="h-full bg-gradient-to-r from-yellow-400 to-orange-600 w-0 transition-all duration-200"></div>
+                </div>
+            </div>
+            <div class="bg-black/60 text-white p-2 rounded shadow text-center">
+                <div class="text-xs">模擬經過時間</div>
+                <div class="font-mono text-xl font-bold text-green-400" id="roast-sim-time">00:00</div>
+            </div>
+        </div>
+        <div id="roast-instruction" class="absolute top-1/4 left-0 w-full text-center text-white/50 text-xl font-bold pointer-events-none animate-pulse">
+            快速滑動翻炒！
+        </div>
+        <canvas id="roasting-canvas"></canvas>
+    </div>
+
+    <!-- Part 6: Brewing Intro & Game (UI Based) -->
+    <div id="screen-part6" class="screen bg-amber-50 relative">
+        <h2 class="text-2xl font-bold text-amber-800 mb-2 border-b-2 border-amber-200 pb-2">沖泡功夫茶</h2>
+        
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-4 border border-amber-100">
+            <h3 class="font-bold text-amber-700 mb-1">泡茶知識：</h3>
+            <p class="text-sm text-gray-600 mb-1">• 紅茶沖泡黃金比例：<span class="font-bold text-red-600">1g茶葉 : 50ml水</span></p>
+            <p class="text-sm text-gray-600">• 最佳水溫：<span class="font-bold text-red-600">85°C - 95°C</span></p>
+            <p class="text-xs text-gray-500 mt-2 italic">「客來敬茶」— 請調配出最完美的英德紅茶。</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pb-4">
+            <!-- Sliders -->
+            <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="flex justify-between font-bold text-gray-700 mb-2">
+                    <span>茶葉份量 (g)</span>
+                    <span id="val-tea" class="text-amber-600">5 g</span>
+                </label>
+                <input type="range" id="slider-tea" min="1" max="10" value="5" oninput="updateBrewVals()">
+            </div>
+
+            <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="flex justify-between font-bold text-gray-700 mb-2">
+                    <span>熱水量 (ml)</span>
+                    <span id="val-water-poured" class="text-blue-500">0 ml</span>
+                </label>
+                <button id="btn-pour" class="w-full bg-blue-100 text-blue-600 font-bold py-3 rounded-lg border-2 border-blue-300 hover:bg-blue-200 active:bg-blue-300 transition select-none flex justify-center items-center gap-2 touch-manipulation">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12,21.5C10.5,21.5 8.7,20.8 7.3,19.4C4.5,16.6 4.5,12 7.3,9.2L12,4.5L16.7,9.2C19.5,12 19.5,16.6 16.7,19.4C15.3,20.8 13.5,21.5 12,21.5M12,6.6L9.4,9.2C7.3,11.3 7.3,14.7 9.4,16.8C10.8,18.2 13.2,18.2 14.6,16.8C16.7,14.7 16.7,11.3 14.6,9.2L12,6.6Z"/></svg>
+                    按住此處注水
+                </button>
+            </div>
+
+            <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
+                <label class="flex justify-between font-bold text-gray-700 mb-2">
+                    <span>水溫 (°C)</span>
+                    <span id="val-temp" class="text-red-500">80 °C</span>
+                </label>
+                <input type="range" id="slider-temp" min="60" max="100" value="80" class="accent-red-500" oninput="updateBrewVals()">
+            </div>
+
+            <!-- Visual Teacup -->
+            <div class="flex justify-center mb-6 relative">
+                <svg viewBox="0 0 120 100" class="w-40 h-32">
+                    <defs>
+                        <clipPath id="cup-clip">
+                            <path d="M 25 40 C 25 80, 45 80, 60 80 C 75 80, 95 80, 95 40 Z"/>
+                        </clipPath>
+                    </defs>
+                    <!-- Steam -->
+                    <g opacity="0.6" class="animate-pulse">
+                        <path d="M 45 30 Q 35 15 50 0 T 45 -15" fill="none" stroke="#ddd" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M 60 35 Q 75 20 55 5 T 65 -10" fill="none" stroke="#eee" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M 75 30 Q 65 15 80 0 T 75 -15" fill="none" stroke="#ddd" stroke-width="2" stroke-linecap="round"/>
+                    </g>
+                    <!-- Saucer -->
+                    <ellipse cx="60" cy="85" rx="45" ry="12" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="2"/>
+                    <ellipse cx="60" cy="85" rx="25" ry="6" fill="#cbd5e1"/>
+                    
+                    <!-- Tea liquid (Dynamic fill via clipPath) -->
+                    <rect id="liquid-fill" x="20" y="80" width="80" height="0" fill="#8B4513" opacity="0" clip-path="url(#cup-clip)"/>
+                    
+                    <!-- Pouring stream -->
+                    <rect id="water-stream" x="58" y="-10" width="4" height="90" fill="#93c5fd" opacity="0" class="transition-opacity duration-200"/>
+
+                    <!-- Cup Body Front -->
+                    <path d="M 25 40 C 25 80, 45 80, 60 80 C 75 80, 95 80, 95 40 Z" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+                    <!-- Cup Back rim -->
+                    <ellipse cx="60" cy="40" rx="35" ry="10" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+                    <!-- Handle -->
+                    <path d="M 95 45 C 115 45, 115 65, 90 70" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M 95 45 C 115 45, 115 65, 90 70" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <button onclick="evaluateBrew()" class="mt-auto bg-amber-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-amber-700 transition w-full">沖泡評分</button>
+    </div>
+
+    <!-- Part 7: Final Result -->
+    <div id="screen-part7" class="screen justify-center items-center text-center bg-green-50">
+        <h1 class="text-3xl font-bold text-green-800 mb-6">體驗完成！</h1>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md w-full mb-6 text-left">
+            <h3 class="font-bold text-lg text-gray-800 mb-4 border-b pb-2">你的成績單</h3>
+            <p class="text-gray-700 mb-2 flex justify-between"><span>採茶得分：</span> <span class="font-bold text-green-600" id="final-pick-score">0</span></p>
+            <p class="text-gray-700 mb-2 flex justify-between"><span>殺青完成度：</span> <span class="font-bold text-orange-600">100%</span></p>
+            
+            <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                <p class="font-bold text-amber-800 mb-1">泡茶評價：</p>
+                <p id="final-brew-feedback" class="text-sm text-gray-700"></p>
+                <div id="final-stars" class="text-2xl mt-2 text-yellow-500"></div>
+            </div>
+        </div>
+
+        <p class="text-gray-600 mb-8 text-sm px-4">希望這次虛擬的英德之旅，能讓你體會到「以茶敬客，以茶睦鄰」的文化內涵，並了解製茶的辛勞與樂趣。</p>
+        
+        <button onclick="location.reload()" class="bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full">再次體驗</button>
+    </div>
+
+</div>
+
+<script>
+    // --- State Management ---
+    const state = {
+        character: null, // 'boy' or 'girl'
+        hat: null, // 'floral' or 'plain'
+        pickScore: 0,
+        roastProgress: 0
+    };
+
+    const screens = ['part1', 'part2', 'part3', 'part4', 'part5-intro', 'part5', 'part6', 'part7'];
+
+    function showScreen(screenId) {
+        screens.forEach(s => {
+            document.getElementById(`screen-${s}`).classList.remove('active');
+        });
+        document.getElementById(`screen-${screenId}`).classList.add('active');
+    }
+
+    function nextScreen(target) {
+        showScreen(target);
+    }
+
+    // --- Part 1 & 3: Selection Logic ---
+    function selectCharacter(type) {
+        state.character = type;
+        document.getElementById('btn-char-boy').classList.remove('selected');
+        document.getElementById('btn-char-girl').classList.remove('selected');
+        document.getElementById(`btn-char-${type}`).classList.add('selected');
+        document.getElementById('btn-start').disabled = false;
+        
+        // Setup preview for part 3
+        const boySVG = `<svg viewBox="0 0 100 100" class="w-full h-full absolute top-0 left-0 z-10">
+            <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
+            <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
+            <circle cx="50" cy="35" r="22" fill="#FFE0BD" />
+            <path d="M 40 60 L 50 75 L 60 60 Z" fill="#fff" />
+            <path d="M 25 35 C 25 10, 75 10, 75 35 C 75 20, 60 15, 50 18 C 40 15, 25 20, 25 35 Z" fill="#222" />
+        </svg>`;
+        const girlSVG = `<svg viewBox="0 0 100 100" class="w-full h-full absolute top-0 left-0 z-10">
+            <path d="M 25 35 C 10 50, 20 80, 35 70 C 30 60, 25 50, 25 35 Z" fill="#222" />
+            <path d="M 75 35 C 90 50, 80 80, 65 70 C 70 60, 75 50, 75 35 Z" fill="#222" />
+            <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
+            <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
+            <circle cx="50" cy="35" r="22" fill="#FFE0BD" />
+            <path d="M 35 60 L 65 60 L 50 75 Z" fill="#fff" />
+            <path d="M 45 70 L 55 70 L 50 85 Z" fill="#89A8C9" />
+            <path d="M 25 35 C 25 10, 75 10, 75 35 C 70 15, 50 15, 45 25 C 45 15, 30 15, 25 35 Z" fill="#222" />
+        </svg>`;
+        document.getElementById('preview-container').innerHTML = type === 'boy' ? boySVG : girlSVG;
+    }
+
+    function selectHat(type) {
+        state.hat = type;
+        document.querySelectorAll('.hat-btn').forEach(btn => btn.classList.remove('border-green-500', 'bg-green-50'));
+        document.getElementById(`btn-hat-${type}`).classList.add('border-green-500', 'bg-green-50');
+        document.getElementById('btn-go-pick').disabled = false;
+
+        // Add hat to preview
+        const container = document.getElementById('preview-container');
+        // Remove old hat if exists
+        const oldHat = container.querySelector('.preview-hat');
+        if (oldHat) oldHat.remove();
+
+        const floralSVG = `<svg viewBox="0 0 100 50" class="w-32 h-16 absolute -top-6 left-0 z-20 preview-hat">
+            <path d="M 5 45 Q 50 -10 95 45 Z" fill="#20B2AA" />
+            <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#188c86" />
+            <path d="M 5 45 Q 50 -10 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
+            <path d="M 5 45 Q 50 55 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
+            <circle cx="50" cy="20" r="5" fill="#FFC0CB"/><circle cx="35" cy="28" r="4" fill="#FFF"/><circle cx="65" cy="28" r="4" fill="#FF69B4"/>
+        </svg>`;
+        const plainSVG = `<svg viewBox="0 0 100 50" class="w-32 h-16 absolute -top-6 left-0 z-20 preview-hat">
+            <path d="M 5 45 Q 50 -10 95 45 Z" fill="#E9C46A" />
+            <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#D4A33B" />
+            <path d="M 20 35 Q 50 0 80 35" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
+            <path d="M 35 40 Q 50 15 65 40" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
+        </svg>`;
+        
+        container.insertAdjacentHTML('beforeend', type === 'floral' ? floralSVG : plainSVG);
+    }
+
+    // --- Part 4: Picking Game (Canvas) ---
+    let pickRAF, pickCanvas, pickCtx;
+    let pickWidth, pickHeight;
+    let basketX;
+    let leaves = [];
+    let pickTimeLeft = 30;
+    let lastTime = 0;
+
+    function startPickingGame() {
+        showScreen('part4');
+        pickCanvas = document.getElementById('picking-canvas');
+        pickCtx = pickCanvas.getContext('2d');
+        
+        // Resize canvas to match container
+        const rect = pickCanvas.parentElement.getBoundingClientRect();
+        pickCanvas.width = rect.width;
+        pickCanvas.height = rect.height;
+        pickWidth = pickCanvas.width;
+        pickHeight = pickCanvas.height;
+        
+        basketX = pickWidth / 2;
+        state.pickScore = 0;
+        pickTimeLeft = 30;
+        leaves = [];
+        lastTime = performance.now();
+        
+        document.getElementById('pick-score').innerText = `分數: 0`;
+        document.getElementById('pick-time').innerText = `30s`;
+
+        // Event listeners for basket
+        const moveBasket = (e) => {
+            e.preventDefault();
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let rect = pickCanvas.getBoundingClientRect();
+            basketX = clientX - rect.left;
+            // Clamp
+            if(basketX < 40) basketX = 40;
+            if(basketX > pickWidth - 40) basketX = pickWidth - 40;
+        };
+        pickCanvas.addEventListener('touchmove', moveBasket, {passive: false});
+        pickCanvas.addEventListener('mousemove', moveBasket);
+
+        requestAnimationFrame(pickLoop);
+    }
+
+    function spawnLeaf() {
+        const types = [
+            { type: 'tender', color: '#84cc16', points: 5, w: 15, h: 25, speed: 1.2, rot: Math.random() },
+            { type: 'tender', color: '#bef264', points: 5, w: 12, h: 20, speed: 1.5, rot: Math.random() },
+            { type: 'old', color: '#166534', points: 1, w: 22, h: 35, speed: 0.8, rot: Math.random() },
+            { type: 'dead', color: '#9a3412', points: -2, w: 18, h: 30, speed: 1.0, rot: Math.random() }
+        ];
+        const t = types[Math.floor(Math.random() * types.length)];
+        leaves.push({
+            x: Math.random() * (pickWidth - 60) + 30,
+            y: -30,
+            swing: Math.random() * Math.PI * 2,
+            ...t
+        });
+    }
+
+    function drawTeaLeaf(ctx, x, y, w, h, color, rot) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(0, -h/2);
+        ctx.quadraticCurveTo(w/2, 0, 0, h/2);
+        ctx.quadraticCurveTo(-w/2, 0, 0, -h/2);
+        ctx.fill();
+        // Vein
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -h/2 + 2);
+        ctx.lineTo(0, h/2 - 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function drawBasket(x, y) {
+        // Character Body/Head behind basket
+        pickCtx.fillStyle = state.character === 'boy' ? '#A7C7E7' : '#A7C7E7';
+        pickCtx.beginPath();
+        pickCtx.arc(x, y - 20, 20, Math.PI, 0);
+        pickCtx.fill();
+        pickCtx.fillStyle = '#FFE0BD';
+        pickCtx.beginPath();
+        pickCtx.arc(x, y - 35, 18, 0, Math.PI*2);
+        pickCtx.fill();
+        
+        // Hat
+        pickCtx.fillStyle = state.hat === 'floral' ? '#20B2AA' : '#E9C46A';
+        pickCtx.beginPath();
+        pickCtx.moveTo(x - 35, y - 30);
+        pickCtx.quadraticCurveTo(x, y - 60, x + 35, y - 30);
+        pickCtx.quadraticCurveTo(x, y - 20, x - 35, y - 30);
+        pickCtx.fill();
+        if(state.hat === 'floral') {
+            pickCtx.fillStyle = '#E63946';
+            pickCtx.beginPath();
+            pickCtx.arc(x, y-40, 4, 0, Math.PI*2);
+            pickCtx.arc(x-15, y-35, 3, 0, Math.PI*2);
+            pickCtx.arc(x+15, y-35, 3, 0, Math.PI*2);
+            pickCtx.fill();
+        }
+
+        // Bamboo Basket Main Shape
+        pickCtx.fillStyle = '#DEB887';
+        pickCtx.beginPath();
+        pickCtx.moveTo(x - 45, y);
+        pickCtx.lineTo(x + 45, y);
+        pickCtx.lineTo(x + 35, y + 50);
+        pickCtx.lineTo(x - 35, y + 50);
+        pickCtx.fill();
+        
+        // Woven texture
+        pickCtx.strokeStyle = '#CD853F';
+        pickCtx.lineWidth = 2;
+        pickCtx.beginPath();
+        for(let i=0; i<50; i+=10) {
+            pickCtx.moveTo(x - 45 + i*0.2, y + i);
+            pickCtx.lineTo(x + 45 - i*0.2, y + i);
+        }
+        for(let i=-30; i<=30; i+=15) {
+            pickCtx.moveTo(x + i, y);
+            pickCtx.lineTo(x + i*0.8, y + 50);
+        }
+        pickCtx.stroke();
+        
+        // Basket Rim
+        pickCtx.strokeStyle = '#8B4513';
+        pickCtx.lineWidth = 4;
+        pickCtx.beginPath();
+        pickCtx.moveTo(x - 48, y);
+        pickCtx.lineTo(x + 48, y);
+        pickCtx.stroke();
+    }
+
+    function pickLoop(timestamp) {
+        const dt = timestamp - lastTime;
+        
+        // Clear & Sky Gradient
+        let skyGrad = pickCtx.createLinearGradient(0,0,0,pickHeight);
+        skyGrad.addColorStop(0, '#87CEEB');
+        skyGrad.addColorStop(1, '#E0F6FF');
+        pickCtx.fillStyle = skyGrad; 
+        pickCtx.fillRect(0, 0, pickWidth, pickHeight);
+        
+        // Draw Mountains
+        pickCtx.fillStyle = '#8FBC8F';
+        pickCtx.beginPath();
+        pickCtx.moveTo(0, pickHeight - 150);
+        pickCtx.quadraticCurveTo(pickWidth*0.2, pickHeight-250, pickWidth*0.5, pickHeight-150);
+        pickCtx.quadraticCurveTo(pickWidth*0.8, pickHeight-200, pickWidth, pickHeight-100);
+        pickCtx.lineTo(pickWidth, pickHeight);
+        pickCtx.lineTo(0, pickHeight);
+        pickCtx.fill();
+
+        // Draw Tea Bushes (Layers)
+        pickCtx.fillStyle = '#2E8B57';
+        pickCtx.beginPath();
+        for(let i=0; i<=pickWidth+50; i+=60) {
+            pickCtx.arc(i, pickHeight - 80, 50, Math.PI, 0);
+        }
+        pickCtx.fill();
+        pickCtx.fillStyle = '#3CB371';
+        pickCtx.beginPath();
+        for(let i=-30; i<=pickWidth+50; i+=50) {
+            pickCtx.arc(i, pickHeight - 40, 45, Math.PI, 0);
+        }
+        pickCtx.fill();
+
+        // Spawn
+        if(Math.random() < 0.02) spawnLeaf();
+
+        // Update & Draw Leaves
+        const basketY = pickHeight - 70;
+        for (let i = leaves.length - 1; i >= 0; i--) {
+            let l = leaves[i];
+            l.y += l.speed;
+            l.swing += 0.05;
+            let actualX = l.x + Math.sin(l.swing) * 20; // Swaying motion
+            
+            drawTeaLeaf(pickCtx, actualX, l.y, l.w, l.h, l.color, l.rot + l.swing*0.2);
+
+            // Collision
+            if (l.y + l.h/2 > basketY && l.y < basketY + 20 && Math.abs(actualX - basketX) < 45) {
+                state.pickScore += l.points;
+                document.getElementById('pick-score').innerText = `分數: ${state.pickScore}`;
+                leaves.splice(i, 1);
+                // Flash effect
+                pickCtx.fillStyle = l.points > 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,0,0,0.2)';
+                pickCtx.fillRect(0,0,pickWidth,pickHeight);
+            } else if (l.y > pickHeight + 30) {
+                leaves.splice(i, 1);
+            }
+        }
+
+        // Draw Player/Basket
+        drawBasket(basketX, basketY);
+
+        // Timer
+        if (dt > 1000) {
+            pickTimeLeft--;
+            document.getElementById('pick-time').innerText = `${pickTimeLeft}s`;
+            lastTime = timestamp;
+        }
+
+        if (pickTimeLeft > 0) {
+            pickRAF = requestAnimationFrame(pickLoop);
+        } else {
+            // End minigame
+            setTimeout(() => {
+                showScreen('part5-intro');
+            }, 1000);
+        }
+    }
+
+    // --- Part 5: Roasting Game (Canvas) ---
+    let roastRAF, roastCanvas, roastCtx;
+    let roastWidth, roastHeight;
+    let currentMousePos = {x: 0, y: 0};
+    let isTouching = false;
+    let roastLeaves = [];
+    let roastStartTime = 0;
+    
+    function startRoastingGame() {
+        showScreen('part5');
+        roastCanvas = document.getElementById('roasting-canvas');
+        roastCtx = roastCanvas.getContext('2d');
+        
+        const rect = roastCanvas.parentElement.getBoundingClientRect();
+        roastCanvas.width = rect.width;
+        roastCanvas.height = rect.height;
+        roastWidth = roastCanvas.width;
+        roastHeight = roastCanvas.height;
+
+        state.roastProgress = 0;
+        document.getElementById('roast-progress-bar').style.width = '0%';
+        roastStartTime = performance.now();
+
+        // Init leaves in wok
+        roastLeaves = [];
+        const centerX = roastWidth/2;
+        const centerY = roastHeight/2 + 50;
+        for(let i=0; i<80; i++) {
+            roastLeaves.push({
+                x: centerX + (Math.random() - 0.5) * 150,
+                y: centerY + (Math.random() - 0.5) * 150,
+                baseX: centerX,
+                baseY: centerY,
+                angle: Math.random() * Math.PI * 2,
+                color: '#4CAF50' // Starts green, turns dark
+            });
+        }
+
+        // Interaction
+        const handleDown = (e) => {
+            isTouching = true;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            let rect = roastCanvas.getBoundingClientRect();
+            currentMousePos = {x: clientX - rect.left, y: clientY - rect.top};
+        };
+
+        const handleMove = (e) => {
+            e.preventDefault(); // Prevent scrolling
+            if (!isTouching) return;
+            
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            let rect = roastCanvas.getBoundingClientRect();
+            let newX = clientX - rect.left;
+            let newY = clientY - rect.top;
+            
+            let dx = newX - currentMousePos.x;
+            let dy = newY - currentMousePos.y;
+            let speed = Math.sqrt(dx*dx + dy*dy);
+            
+            if (speed > 2) {
+                state.roastProgress += speed * 0.015; // Adjusted speed scale
+                if(state.roastProgress > 100) state.roastProgress = 100;
+                document.getElementById('roast-progress-bar').style.width = `${state.roastProgress}%`;
+                
+                document.getElementById('roast-instruction').style.display = 'none';
+
+                // Agitate leaves
+                roastLeaves.forEach(l => {
+                    l.x += (Math.random() - 0.5) * speed * 0.6;
+                    l.y += (Math.random() - 0.5) * speed * 0.6;
+                    
+                    // Keep in wok
+                    let dist = Math.hypot(l.x - centerX, l.y - centerY);
+                    if(dist > 120) {
+                        l.x = centerX + (l.x - centerX) * (120/dist);
+                        l.y = centerY + (l.y - centerY) * (120/dist);
+                    }
+                });
+            }
+            currentMousePos = {x: newX, y: newY};
+        };
+
+        const handleUp = () => { isTouching = false; };
+
+        roastCanvas.onmousedown = handleDown;
+        roastCanvas.ontouchstart = handleDown;
+        roastCanvas.onmousemove = handleMove;
+        roastCanvas.ontouchmove = handleMove;
+        roastCanvas.onmouseup = handleUp;
+        roastCanvas.ontouchend = handleUp;
+        roastCanvas.onmouseleave = handleUp;
+
+        requestAnimationFrame(roastLoop);
+    }
+
+    function roastLoop(timestamp) {
+        // Clear
+        roastCtx.fillStyle = '#2c1e16'; // Dark rustic bg
+        roastCtx.fillRect(0, 0, roastWidth, roastHeight);
+        
+        const centerX = roastWidth/2;
+        const centerY = roastHeight/2 + 20;
+
+        // Draw Fire glow
+        const fireGlow = roastCtx.createRadialGradient(centerX, centerY+120, 20, centerX, centerY+120, 150);
+        fireGlow.addColorStop(0, 'rgba(255, 100, 0, 0.6)');
+        fireGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        roastCtx.fillStyle = fireGlow;
+        roastCtx.fillRect(0, 0, roastWidth, roastHeight);
+
+        // Draw Wok (Iron pan) with metallic sheen
+        const gradient = roastCtx.createRadialGradient(centerX, centerY, 60, centerX, centerY, 160);
+        gradient.addColorStop(0, '#5a5a5a');
+        gradient.addColorStop(0.7, '#222');
+        gradient.addColorStop(1, '#0a0a0a');
+        roastCtx.fillStyle = gradient;
+        roastCtx.beginPath();
+        roastCtx.arc(centerX, centerY, 160, 0, Math.PI*2);
+        roastCtx.fill();
+        
+        // Wok Rim
+        roastCtx.strokeStyle = '#8a8a8a';
+        roastCtx.lineWidth = 6;
+        roastCtx.beginPath();
+        roastCtx.arc(centerX, centerY, 160, 0, Math.PI*2);
+        roastCtx.stroke();
+        roastCtx.strokeStyle = '#333';
+        roastCtx.lineWidth = 2;
+        roastCtx.stroke();
+
+        // Draw Leaves
+        // Color transition: Vivid Green -> Dark Olive/Brown
+        let r = Math.floor(132 - (state.roastProgress * 0.9)); 
+        let g = Math.floor(204 - (state.roastProgress * 1.5));
+        let b = Math.floor(22 - (state.roastProgress * 0.1));
+        if(r<40) r=40; if(g<50) g=50; if(b<20) b=20;
+        let leafColor = `rgb(${r},${g},${b})`;
+        
+        // Shrink leaves as they roast
+        let shrink = 1 - (state.roastProgress * 0.004); // max shrink to 60%
+
+        roastLeaves.forEach((l, i) => {
+            roastCtx.save();
+            roastCtx.translate(l.x, l.y);
+            roastCtx.rotate(l.angle + state.roastProgress*0.1);
+            roastCtx.scale(shrink, shrink);
+            
+            roastCtx.fillStyle = leafColor;
+            roastCtx.beginPath();
+            // Draw a more realistic leaf shape
+            roastCtx.moveTo(0, -10);
+            roastCtx.quadraticCurveTo(8, 0, 0, 10);
+            roastCtx.quadraticCurveTo(-8, 0, 0, -10);
+            roastCtx.fill();
+            roastCtx.restore();
+            
+            // Gravity pull back to center slowly
+            l.x += (centerX - l.x) * 0.06;
+            l.y += (centerY - l.y) * 0.06;
+        });
+
+        // Hands (Gloves) and Wooden Spatula near mouse pos
+        if(isTouching) {
+            let hx = currentMousePos.x;
+            let hy = currentMousePos.y;
+            
+            // Spatula
+            roastCtx.fillStyle = '#D2B48C'; // Wood color
+            roastCtx.beginPath();
+            roastCtx.moveTo(hx - 10, hy + 40);
+            roastCtx.lineTo(hx + 10, hy + 40);
+            roastCtx.lineTo(hx + 15, hy - 40);
+            roastCtx.lineTo(hx - 15, hy - 40);
+            roastCtx.fill();
+            roastCtx.strokeStyle = '#8B4513';
+            roastCtx.stroke();
+
+            // Hands (Gloves)
+            roastCtx.fillStyle = '#F5F5F5'; // White gloves
+            roastCtx.shadowColor = 'rgba(0,0,0,0.3)';
+            roastCtx.shadowBlur = 5;
+            roastCtx.beginPath();
+            roastCtx.arc(hx, hy + 20, 25, 0, Math.PI*2); // Hand holding handle
+            roastCtx.fill();
+            roastCtx.shadowBlur = 0; // reset
+        }
+
+        // Time mapping: 30s real time = 3 mins (180s) game time
+        let elapsedReal = (timestamp - roastStartTime) / 1000; // seconds
+        if (elapsedReal > 30) elapsedReal = 30;
+        
+        let simSeconds = Math.floor((elapsedReal / 30) * 180);
+        let m = Math.floor(simSeconds / 60);
+        let s = simSeconds % 60;
+        document.getElementById('roast-sim-time').innerText = `0${m}:${s<10?'0':''}${s}`;
+
+        if (state.roastProgress >= 100 || elapsedReal >= 30) {
+            // End
+            state.roastProgress = 100;
+            document.getElementById('roast-progress-bar').style.width = '100%';
+            setTimeout(() => {
+                showScreen('part6');
+            }, 1500);
+        } else {
+            roastRAF = requestAnimationFrame(roastLoop);
+        }
+    }
+
+    // --- Part 6: Brewing ---
+    let pourInterval;
+    let currentWaterVolume = 0;
+    const maxWater = 300;
+
+    function setupBrewingGame() {
+        const btnPour = document.getElementById('btn-pour');
+        
+        const startPour = (e) => {
+            e.preventDefault();
+            document.getElementById('water-stream').setAttribute('opacity', '0.7');
+            clearInterval(pourInterval);
+            pourInterval = setInterval(() => {
+                if (currentWaterVolume < maxWater) {
+                    currentWaterVolume += 2; // 注水速度
+                    updateBrewVals();
+                }
+            }, 20);
+        };
+        
+        const stopPour = (e) => {
+            if (e) e.preventDefault();
+            document.getElementById('water-stream').setAttribute('opacity', '0');
+            clearInterval(pourInterval);
+        };
+
+        btnPour.addEventListener('mousedown', startPour);
+        btnPour.addEventListener('touchstart', startPour, {passive: false});
+        
+        window.addEventListener('mouseup', stopPour);
+        window.addEventListener('touchend', stopPour);
+    }
+
+    function updateBrewVals() {
+        document.getElementById('val-tea').innerText = document.getElementById('slider-tea').value + ' g';
+        document.getElementById('val-water-poured').innerText = Math.floor(currentWaterVolume) + ' ml';
+        document.getElementById('val-temp').innerText = document.getElementById('slider-temp').value + ' °C';
+        
+        // Update visual liquid in the cup
+        let h = (currentWaterVolume / 250) * 40; // 250ml 視覺上滿杯 (高度40)
+        if (h > 40) h = 40;
+        let y = 80 - h;
+        
+        const t = parseFloat(document.getElementById('slider-tea').value);
+        const w = currentWaterVolume;
+        
+        // 顏色根據比例變化
+        let ratio = w / t; 
+        let opacity = 0.8;
+        if (ratio < 30) opacity = 0.95; // 茶太濃
+        if (ratio > 80) opacity = 0.5;  // 茶太淡
+        if (w === 0) opacity = 0;
+        
+        document.getElementById('liquid-fill').setAttribute('y', y);
+        document.getElementById('liquid-fill').setAttribute('height', h);
+        document.getElementById('liquid-fill').setAttribute('opacity', opacity);
+    }
+
+    function evaluateBrew() {
+        const tea = parseFloat(document.getElementById('slider-tea').value);
+        const water = currentWaterVolume;
+        const temp = parseFloat(document.getElementById('slider-temp').value);
+        
+        const ratio = water / tea;
+        
+        let feedback = "";
+        let stars = 0;
+
+        let ratioOk = (ratio >= 40 && ratio <= 60);
+        let tempOk = (temp >= 85 && temp <= 95);
+
+        if (ratioOk && tempOk) {
+            feedback = "完美！茶水比例（1:50）與水溫（85-95度）掌握得恰到好處，這杯英德紅茶香氣濃郁，湯色紅亮，是待客的上品！";
+            stars = 3;
+        } else if (ratioOk || tempOk) {
+            if (!ratioOk) feedback = ratio > 60 ? `水溫合適，但茶味稍淡（目前比例為 1:${Math.floor(ratio)}，水太多了）。` : `水溫合適，但茶味過濃發苦（目前比例為 1:${Math.floor(ratio)}，水太少了）。`;
+            if (!tempOk) feedback = temp < 85 ? "比例不錯，但水溫偏低，茶香未能完全散發。" : "比例不錯，但水溫過高，破壞了嫩葉的口感。";
+            stars = 2;
+        } else {
+            if (water === 0) {
+                feedback = "你還沒有加水呢！記得按住按鈕注入熱水。";
+                stars = 0;
+            } else {
+                feedback = "仍需努力！沖泡紅茶是一門學問，記得黃金比例1:50和85-95度的水溫哦。";
+                stars = 1;
+            }
+        }
+
+        // Populate Part 7
+        document.getElementById('final-pick-score').innerText = state.pickScore;
+        document.getElementById('final-brew-feedback').innerText = feedback;
+        document.getElementById('final-stars').innerText = '★'.repeat(stars) + '☆'.repeat(3-stars);
+        
+        showScreen('part7');
+    }
+
+    // 初始化泡茶遊戲事件
+    setupBrewingGame();
+
+</script>
+</body>
+</html>
