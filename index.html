@@ -8,9 +8,9 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Microsoft JhengHei';
-            background-color: #f0fdf4; /* Light green background */
+            background-color: #f0fdf4; 
             background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10 10c-5 0-5 10 0 10s5-10 0-10zm20 20c-5 0-5 10 0 10s5-10 0-10z" fill="%23dcfce7" fill-rule="evenodd"/></svg>');
-            touch-action: none; /* Prevent scroll on touch devices while playing */
+            touch-action: none; 
             overflow: hidden;
         }
         .game-container {
@@ -40,16 +40,22 @@
             display: flex;
         }
         
-        /* SVGs for UI */
         .svg-icon { width: 100%; height: 100%; }
         .char-btn { transition: transform 0.2s; }
         .char-btn:hover { transform: scale(1.05); }
         .char-btn.selected { border-color: #22c55e; background-color: #dcfce7; transform: scale(1.05); }
         
         .slider-container { margin-bottom: 1.5rem; }
-        input[type=range] {
-            width: 100%;
-            accent-color: #16a34a;
+        input[type=range] { width: 100%; accent-color: #16a34a; }
+
+        /* Stamp Animation */
+        @keyframes stamp-down {
+            0% { transform: scale(2) rotate(-20deg); opacity: 0; }
+            50% { transform: scale(0.9) rotate(-15deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-15deg); opacity: 1; }
+        }
+        .animate-stamp {
+            animation: stamp-down 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
@@ -69,7 +75,7 @@
                     <svg viewBox="0 0 100 100" class="svg-icon">
                         <!-- Shoulders/Shirt -->
                         <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
-                        <path d="M 40 60 L 50 75 L 60 60 Z" fill="#fff" /> <!-- Collar -->
+                        <path d="M 40 60 L 50 75 L 60 60 Z" fill="#fff" />
                         <!-- Neck -->
                         <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
                         <!-- Head -->
@@ -98,8 +104,8 @@
                         <path d="M 75 35 C 90 50, 80 80, 65 70 C 70 60, 75 50, 75 35 Z" fill="#222" />
                         <!-- Shoulders/Shirt -->
                         <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
-                        <path d="M 35 60 L 65 60 L 50 75 Z" fill="#fff" /> <!-- Collar -->
-                        <path d="M 45 70 L 55 70 L 50 85 Z" fill="#89A8C9" /> <!-- Tie -->
+                        <path d="M 35 60 L 65 60 L 50 75 Z" fill="#fff" />
+                        <path d="M 45 70 L 55 70 L 50 85 Z" fill="#89A8C9" />
                         <!-- Neck -->
                         <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
                         <!-- Head -->
@@ -129,75 +135,90 @@
             <p class="mb-3">行程最令我難忘的是可以實踐採茶、制茶、識茶、品茶的傳統技藝，也有機會品嘗擂茶粥。</p>
             <p class="mb-3">英德紅茶被譽為中國三大紅茶之一，連外國人也非常喜愛。英德仍保留著濃厚的飲茶文化，「客來敬茶」是英德人日常的禮節。</p>
             <p class="mb-3">遊戲設計理念來自英德「以茶敬客，以茶睦鄰」的文化，希望藉互動遊戲提升同學對茶文化的興趣，學懂欣賞中華文化豐富的內涵及其價值。</p>
-            <p class="font-bold text-green-700 mt-4">現在希望透過呢一個遊戲簡單講述一下當天在當地茶園學會的一些知識，現在一起去體驗吧！</p>
+            <p class="font-bold text-green-700 mt-4">現在希望透過這一個遊戲，簡單講述一下當天在當地茶園學會的一些知識，現在一起去體驗吧！</p>
         </div>
         <button onclick="nextScreen('part3')" class="mt-auto bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full text-center">準備出發</button>
     </div>
 
     <!-- Part 3: Equipment -->
-    <div id="screen-part3" class="screen justify-center items-center">
-        <h2 class="text-2xl font-bold text-green-800 mb-2">換上裝備</h2>
-        <p class="text-gray-600 mb-6">請選擇你的採茶草帽與竹籃</p>
+    <div id="screen-part3" class="screen flex flex-col pt-4">
+        <h2 class="text-2xl font-bold text-green-800 mb-2 text-center">換上裝備</h2>
+        <p class="text-gray-600 mb-4 text-center text-sm">出發前，請先穿戴好採茶裝備！</p>
         
-        <div class="w-full bg-blue-50 p-4 rounded-xl mb-6 flex justify-center items-center h-40">
-            <!-- Preview Area -->
-            <div class="relative w-32 h-32" id="preview-container">
+        <div class="w-full bg-blue-50 rounded-xl mb-4 flex justify-center items-center h-32 relative shadow-inner">
+            <div class="relative w-28 h-28 mt-4" id="preview-container">
                 <!-- Char gets injected here -->
             </div>
         </div>
 
-        <div class="w-full mb-4">
-            <h3 class="font-bold text-gray-700 mb-2">選擇草帽款式：</h3>
-            <div class="flex gap-4">
-                <button onclick="selectHat('floral')" id="btn-hat-floral" class="hat-btn flex-1 border-2 border-gray-200 p-2 rounded bg-white hover:border-green-400 shadow-sm">
-                    <svg viewBox="0 0 100 50" class="w-full h-12">
-                        <!-- Floral Hat -->
+        <!-- Basket Info -->
+        <div class="mb-3 bg-green-50 p-3 rounded-lg border border-green-200 flex items-center gap-3 shadow-sm">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0">
+                <svg viewBox="0 0 50 50" class="w-8 h-8">
+                    <path d="M 10 20 L 40 20 L 35 45 L 15 45 Z" fill="#DEB887" stroke="#CD853F" stroke-width="2"/>
+                    <path d="M 5 20 L 45 20" stroke="#8B4513" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Handle -->
+                    <path d="M 15 20 C 15 5, 35 5, 35 20" fill="none" stroke="#CD853F" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="text-xs text-gray-700">
+                <p class="font-bold text-green-800 text-sm mb-0.5">🧺 標配裝備：採茶竹籃</p>
+                <p>用來收集採摘下來的茶葉，已為你準備好，無須選擇！</p>
+            </div>
+        </div>
+
+        <div class="w-full mb-3 flex-1 overflow-y-auto">
+            <h3 class="font-bold text-gray-700 mb-2 text-sm">選擇草帽款式：</h3>
+            <div class="flex gap-3 mb-3">
+                <button onclick="selectHat('floral')" id="btn-hat-floral" class="hat-btn flex-1 border-2 border-gray-200 p-2 rounded-lg bg-white hover:border-green-400 shadow-sm transition">
+                    <svg viewBox="0 0 100 50" class="w-full h-10">
                         <path d="M 5 45 Q 50 -10 95 45 Z" fill="#20B2AA" />
                         <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#188c86" />
                         <path d="M 5 45 Q 50 -10 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
                         <path d="M 5 45 Q 50 55 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
-                        <!-- Flowers -->
-                        <g transform="translate(30, 20) scale(0.6)">
-                            <circle cx="0" cy="-5" r="4" fill="#FFC0CB"/><circle cx="5" cy="-2" r="4" fill="#FFC0CB"/><circle cx="3" cy="4" r="4" fill="#FFC0CB"/><circle cx="-3" cy="4" r="4" fill="#FFC0CB"/><circle cx="-5" cy="-2" r="4" fill="#FFC0CB"/><circle cx="0" cy="0" r="3" fill="#FFD700"/>
-                        </g>
-                        <g transform="translate(60, 25) scale(0.5)">
-                            <circle cx="0" cy="-5" r="4" fill="#FFF"/><circle cx="5" cy="-2" r="4" fill="#FFF"/><circle cx="3" cy="4" r="4" fill="#FFF"/><circle cx="-3" cy="4" r="4" fill="#FFF"/><circle cx="-5" cy="-2" r="4" fill="#FFF"/><circle cx="0" cy="0" r="3" fill="#FFD700"/>
-                        </g>
-                        <g transform="translate(50, 12) scale(0.4)">
-                            <circle cx="0" cy="-5" r="4" fill="#FF69B4"/><circle cx="5" cy="-2" r="4" fill="#FF69B4"/><circle cx="3" cy="4" r="4" fill="#FF69B4"/><circle cx="-3" cy="4" r="4" fill="#FF69B4"/><circle cx="-5" cy="-2" r="4" fill="#FF69B4"/><circle cx="0" cy="0" r="3" fill="#FFD700"/>
-                        </g>
+                        <g transform="translate(30, 20) scale(0.5)"><circle cx="0" cy="-5" r="4" fill="#FFC0CB"/><circle cx="5" cy="-2" r="4" fill="#FFC0CB"/><circle cx="3" cy="4" r="4" fill="#FFC0CB"/><circle cx="-3" cy="4" r="4" fill="#FFC0CB"/><circle cx="-5" cy="-2" r="4" fill="#FFC0CB"/><circle cx="0" cy="0" r="3" fill="#FFD700"/></g>
+                        <g transform="translate(60, 25) scale(0.4)"><circle cx="0" cy="-5" r="4" fill="#FFF"/><circle cx="5" cy="-2" r="4" fill="#FFF"/><circle cx="3" cy="4" r="4" fill="#FFF"/><circle cx="-3" cy="4" r="4" fill="#FFF"/><circle cx="-5" cy="-2" r="4" fill="#FFF"/><circle cx="0" cy="0" r="3" fill="#FFD700"/></g>
                     </svg>
-                    <div class="text-xs text-center mt-2 font-bold text-gray-700">花紋斗笠</div>
+                    <div class="text-xs text-center mt-1 font-bold text-gray-700">花紋斗笠</div>
                 </button>
-                <button onclick="selectHat('plain')" id="btn-hat-plain" class="hat-btn flex-1 border-2 border-gray-200 p-2 rounded bg-white hover:border-green-400 shadow-sm">
-                    <svg viewBox="0 0 100 50" class="w-full h-12">
-                        <!-- Plain Hat -->
+                <button onclick="selectHat('plain')" id="btn-hat-plain" class="hat-btn flex-1 border-2 border-gray-200 p-2 rounded-lg bg-white hover:border-green-400 shadow-sm transition">
+                    <svg viewBox="0 0 100 50" class="w-full h-10">
                         <path d="M 5 45 Q 50 -10 95 45 Z" fill="#E9C46A" />
                         <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#D4A33B" />
-                        <!-- Weaving lines -->
                         <path d="M 20 35 Q 50 0 80 35" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
                         <path d="M 35 40 Q 50 15 65 40" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
                         <path d="M 15 45 L 50 5 L 85 45" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.5"/>
                         <path d="M 30 45 L 50 20 L 70 45" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.5"/>
                     </svg>
-                    <div class="text-xs text-center mt-2 font-bold text-gray-700">傳統竹帽</div>
+                    <div class="text-xs text-center mt-1 font-bold text-gray-700">傳統竹帽</div>
                 </button>
+            </div>
+            
+            <!-- Hat Info -->
+            <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200 text-xs text-gray-700 shadow-sm">
+                <p class="font-bold mb-1 text-yellow-800">👒 斗笠小知識：</p>
+                <p>以竹子編成的大帽子，在茶園中具備三大功能：<span class="text-green-700 font-bold">遮陽防曬、遮蔽風雨、通風透氣</span>。</p>
             </div>
         </div>
 
-        <button onclick="startPickingGame()" class="mt-auto bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full text-center" id="btn-go-pick" disabled>前往茶園採茶</button>
+        <button onclick="startPickingGame()" class="bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full text-center shrink-0" id="btn-go-pick" disabled>前往茶園採茶</button>
     </div>
 
     <!-- Part 4: Picking Game -->
     <div id="screen-part4" class="screen p-0 relative bg-green-100">
         <!-- Game UI Overlay -->
         <div class="absolute top-0 left-0 w-full p-4 flex justify-between items-start pointer-events-none z-10">
-            <div class="bg-white/80 p-2 rounded shadow backdrop-blur-sm">
-                <div class="text-sm font-bold text-green-800">目標：採摘嫩芽</div>
-                <div class="text-xs text-gray-600">嫩芽 +5 | 老葉 +1 | 枯葉 -2</div>
+            <div class="bg-white/85 p-2 rounded shadow backdrop-blur-sm">
+                <div class="text-sm font-bold text-green-800">目標：快速採摘嫩芽</div>
+                <div class="text-xs text-gray-700 mt-1 flex flex-wrap gap-x-2 gap-y-1">
+                    <span class="text-green-600 font-bold">嫩芽 +5</span>
+                    <span class="text-emerald-700">老葉 +1</span>
+                    <span class="text-orange-700">枯葉 -2</span>
+                    <span class="text-red-600 font-bold">蟲葉 -5</span>
+                </div>
                 <div class="font-bold text-xl mt-1 text-green-700" id="pick-score">分數: 0</div>
             </div>
-            <div class="bg-white/80 p-2 rounded shadow font-bold text-xl text-blue-600 backdrop-blur-sm" id="pick-time">30s</div>
+            <div class="bg-white/90 p-2 rounded shadow font-bold text-2xl text-blue-600 backdrop-blur-sm" id="pick-time">30s</div>
         </div>
         <!-- Canvas -->
         <canvas id="picking-canvas"></canvas>
@@ -214,7 +235,7 @@
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm w-full mb-8">
             <p class="font-bold text-gray-800">遊戲玩法：</p>
-            <p class="text-gray-600 text-sm">在接下來的畫面中，<strong class="text-orange-500">快速滑動手指/鼠標</strong>來翻炒鐵鍋中的茶葉。保持翻炒直到殺青完成！</p>
+            <p class="text-gray-600 text-sm">在接下來的畫面中，<strong class="text-orange-500">按住並快速滑動手指/鼠標</strong>來翻炒鐵鍋中的茶葉。保持翻炒直到殺青完成！</p>
         </div>
         <button onclick="startRoastingGame()" class="bg-orange-500 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-orange-600 transition w-full">開始炒茶</button>
     </div>
@@ -233,13 +254,13 @@
                 <div class="font-mono text-xl font-bold text-green-400" id="roast-sim-time">00:00</div>
             </div>
         </div>
-        <div id="roast-instruction" class="absolute top-1/4 left-0 w-full text-center text-white/50 text-xl font-bold pointer-events-none animate-pulse">
-            快速滑動翻炒！
+        <div id="roast-instruction" class="absolute top-1/4 left-0 w-full text-center text-white/70 text-xl font-bold pointer-events-none animate-pulse drop-shadow-md">
+            按住並快速滑動翻炒！
         </div>
         <canvas id="roasting-canvas"></canvas>
     </div>
 
-    <!-- Part 6: Brewing Intro & Game (UI Based) -->
+    <!-- Part 6: Brewing -->
     <div id="screen-part6" class="screen bg-amber-50 relative">
         <h2 class="text-2xl font-bold text-amber-800 mb-2 border-b-2 border-amber-200 pb-2">沖泡功夫茶</h2>
         
@@ -251,7 +272,7 @@
         </div>
 
         <div class="flex-1 overflow-y-auto pb-4">
-            <!-- Sliders -->
+            <!-- Sliders & Interactive Button -->
             <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <label class="flex justify-between font-bold text-gray-700 mb-2">
                     <span>茶葉份量 (g)</span>
@@ -260,23 +281,23 @@
                 <input type="range" id="slider-tea" min="1" max="10" value="5" oninput="updateBrewVals()">
             </div>
 
-            <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                <label class="flex justify-between font-bold text-gray-700 mb-2">
-                    <span>熱水量 (ml)</span>
-                    <span id="val-water-poured" class="text-blue-500">0 ml</span>
-                </label>
-                <button id="btn-pour" class="w-full bg-blue-100 text-blue-600 font-bold py-3 rounded-lg border-2 border-blue-300 hover:bg-blue-200 active:bg-blue-300 transition select-none flex justify-center items-center gap-2 touch-manipulation">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12,21.5C10.5,21.5 8.7,20.8 7.3,19.4C4.5,16.6 4.5,12 7.3,9.2L12,4.5L16.7,9.2C19.5,12 19.5,16.6 16.7,19.4C15.3,20.8 13.5,21.5 12,21.5M12,6.6L9.4,9.2C7.3,11.3 7.3,14.7 9.4,16.8C10.8,18.2 13.2,18.2 14.6,16.8C16.7,14.7 16.7,11.3 14.6,9.2L12,6.6Z"/></svg>
-                    按住此處注水
-                </button>
-            </div>
-
             <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
                 <label class="flex justify-between font-bold text-gray-700 mb-2">
                     <span>水溫 (°C)</span>
                     <span id="val-temp" class="text-red-500">80 °C</span>
                 </label>
                 <input type="range" id="slider-temp" min="60" max="100" value="80" class="accent-red-500" oninput="updateBrewVals()">
+            </div>
+
+            <div class="slider-container bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <label class="flex justify-between font-bold text-gray-700 mb-2">
+                    <span>已注入熱水 (ml)</span>
+                    <span id="val-water-poured" class="text-blue-500 font-mono text-lg">0 ml</span>
+                </label>
+                <button id="btn-pour" class="w-full bg-blue-100 text-blue-600 font-bold py-3 rounded-lg border-2 border-blue-300 hover:bg-blue-200 active:bg-blue-300 transition select-none flex justify-center items-center gap-2 touch-manipulation">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M12,21.5C10.5,21.5 8.7,20.8 7.3,19.4C4.5,16.6 4.5,12 7.3,9.2L12,4.5L16.7,9.2C19.5,12 19.5,16.6 16.7,19.4C15.3,20.8 13.5,21.5 12,21.5M12,6.6L9.4,9.2C7.3,11.3 7.3,14.7 9.4,16.8C10.8,18.2 13.2,18.2 14.6,16.8C16.7,14.7 16.7,11.3 14.6,9.2L12,6.6Z"/></svg>
+                    按住此處持續注水
+                </button>
             </div>
 
             <!-- Visual Teacup -->
@@ -314,15 +335,25 @@
             </div>
         </div>
 
-        <button onclick="evaluateBrew()" class="mt-auto bg-amber-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-amber-700 transition w-full">沖泡評分</button>
+        <button onclick="evaluateBrew()" class="mt-auto bg-amber-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-amber-700 transition w-full">完成沖泡！查看評分</button>
     </div>
 
     <!-- Part 7: Final Result -->
-    <div id="screen-part7" class="screen justify-center items-center text-center bg-green-50">
-        <h1 class="text-3xl font-bold text-green-800 mb-6">體驗完成！</h1>
+    <div id="screen-part7" class="screen justify-center items-center text-center bg-green-50 relative overflow-x-hidden">
         
-        <div class="bg-white p-6 rounded-xl shadow-md w-full mb-6 text-left">
-            <h3 class="font-bold text-lg text-gray-800 mb-4 border-b pb-2">你的成績單</h3>
+        <h1 class="text-3xl font-bold text-green-800 mb-6 mt-4">體驗完成！</h1>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md w-full mb-6 text-left relative">
+            
+            <!-- Stamp Overlay -->
+            <div id="final-stamp" class="absolute -top-6 -right-2 w-28 h-28 opacity-0 z-10 drop-shadow-md pointer-events-none flex items-center justify-center">
+                <div class="w-full h-full border-[5px] border-red-600 text-red-600 rounded-full flex flex-col items-center justify-center p-1 bg-white/90">
+                    <span class="text-xs font-bold tracking-widest border-b border-red-600 mb-1 pb-1">文化傳承</span>
+                    <span id="stamp-title" class="font-bold text-lg leading-tight tracking-wide text-center">認證</span>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-lg text-gray-800 mb-4 border-b pb-2">你的專屬成績單</h3>
             <p class="text-gray-700 mb-2 flex justify-between"><span>採茶得分：</span> <span class="font-bold text-green-600" id="final-pick-score">0</span></p>
             <p class="text-gray-700 mb-2 flex justify-between"><span>殺青完成度：</span> <span class="font-bold text-orange-600">100%</span></p>
             
@@ -333,9 +364,16 @@
             </div>
         </div>
 
-        <p class="text-gray-600 mb-8 text-sm px-4">希望這次虛擬的英德之旅，能讓你體會到「以茶敬客，以茶睦鄰」的文化內涵，並了解製茶的辛勞與樂趣。</p>
+        <p class="text-gray-600 mb-6 text-sm px-2">希望這次虛擬的英德之旅，能讓你體會到「以茶敬客，以茶睦鄰」的文化內涵，並了解製茶的辛勞與樂趣。</p>
         
-        <button onclick="location.reload()" class="bg-green-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full">再次體驗</button>
+        <!-- Bottom Action Buttons Grid -->
+        <div class="grid grid-cols-2 gap-3 w-full mb-6 mt-auto">
+            <button onclick="window.location.href='#'" class="bg-blue-500 text-white py-3 rounded-xl font-bold shadow hover:bg-blue-600 transition text-sm flex items-center justify-center gap-1">📚 學習茶文化</button>
+            <button onclick="window.location.href='#'" class="bg-purple-500 text-white py-3 rounded-xl font-bold shadow hover:bg-purple-600 transition text-sm flex items-center justify-center gap-1">🏺 認識非遺</button>
+            <button onclick="window.location.href='#'" class="bg-teal-500 text-white py-3 rounded-xl font-bold shadow hover:bg-teal-600 transition text-sm col-span-2 flex items-center justify-center gap-1">🌍 考察重溫</button>
+        </div>
+
+        <button onclick="location.reload()" class="bg-green-600 text-white px-8 py-4 rounded-full text-lg font-bold shadow-lg hover:bg-green-700 transition w-full">再次體驗</button>
     </div>
 
 </div>
@@ -343,8 +381,8 @@
 <script>
     // --- State Management ---
     const state = {
-        character: null, // 'boy' or 'girl'
-        hat: null, // 'floral' or 'plain'
+        character: null,
+        hat: null,
         pickScore: 0,
         roastProgress: 0
     };
@@ -370,7 +408,6 @@
         document.getElementById(`btn-char-${type}`).classList.add('selected');
         document.getElementById('btn-start').disabled = false;
         
-        // Setup preview for part 3
         const boySVG = `<svg viewBox="0 0 100 100" class="w-full h-full absolute top-0 left-0 z-10">
             <path d="M 20 100 C 20 60, 80 60, 80 100 Z" fill="#A7C7E7" />
             <rect x="42" y="45" width="16" height="20" fill="#FFE0BD" />
@@ -397,20 +434,18 @@
         document.getElementById(`btn-hat-${type}`).classList.add('border-green-500', 'bg-green-50');
         document.getElementById('btn-go-pick').disabled = false;
 
-        // Add hat to preview
         const container = document.getElementById('preview-container');
-        // Remove old hat if exists
         const oldHat = container.querySelector('.preview-hat');
         if (oldHat) oldHat.remove();
 
-        const floralSVG = `<svg viewBox="0 0 100 50" class="w-32 h-16 absolute -top-6 left-0 z-20 preview-hat">
+        const floralSVG = `<svg viewBox="0 0 100 50" class="w-32 h-16 absolute -top-4 left-0 z-20 preview-hat">
             <path d="M 5 45 Q 50 -10 95 45 Z" fill="#20B2AA" />
             <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#188c86" />
             <path d="M 5 45 Q 50 -10 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
             <path d="M 5 45 Q 50 55 95 45" fill="none" stroke="#E63946" stroke-width="4"/>
             <circle cx="50" cy="20" r="5" fill="#FFC0CB"/><circle cx="35" cy="28" r="4" fill="#FFF"/><circle cx="65" cy="28" r="4" fill="#FF69B4"/>
         </svg>`;
-        const plainSVG = `<svg viewBox="0 0 100 50" class="w-32 h-16 absolute -top-6 left-0 z-20 preview-hat">
+        const plainSVG = `<svg viewBox="0 0 100 50" class="w-32 h-16 absolute -top-4 left-0 z-20 preview-hat">
             <path d="M 5 45 Q 50 -10 95 45 Z" fill="#E9C46A" />
             <path d="M 5 45 Q 50 35 95 45 Q 50 55 5 45 Z" fill="#D4A33B" />
             <path d="M 20 35 Q 50 0 80 35" fill="none" stroke="#C49229" stroke-width="1.5" opacity="0.7"/>
@@ -433,7 +468,6 @@
         pickCanvas = document.getElementById('picking-canvas');
         pickCtx = pickCanvas.getContext('2d');
         
-        // Resize canvas to match container
         const rect = pickCanvas.parentElement.getBoundingClientRect();
         pickCanvas.width = rect.width;
         pickCanvas.height = rect.height;
@@ -449,15 +483,13 @@
         document.getElementById('pick-score').innerText = `分數: 0`;
         document.getElementById('pick-time').innerText = `30s`;
 
-        // Event listeners for basket
         const moveBasket = (e) => {
             e.preventDefault();
             let clientX = e.touches ? e.touches[0].clientX : e.clientX;
             let rect = pickCanvas.getBoundingClientRect();
             basketX = clientX - rect.left;
-            // Clamp
-            if(basketX < 40) basketX = 40;
-            if(basketX > pickWidth - 40) basketX = pickWidth - 40;
+            if(basketX < 45) basketX = 45;
+            if(basketX > pickWidth - 45) basketX = pickWidth - 45;
         };
         pickCanvas.addEventListener('touchmove', moveBasket, {passive: false});
         pickCanvas.addEventListener('mousemove', moveBasket);
@@ -466,11 +498,13 @@
     }
 
     function spawnLeaf() {
+        // 加快了掉落速度，並新增了「蟲葉 (buggy)」
         const types = [
-            { type: 'tender', color: '#84cc16', points: 5, w: 15, h: 25, speed: 1.2, rot: Math.random() },
-            { type: 'tender', color: '#bef264', points: 5, w: 12, h: 20, speed: 1.5, rot: Math.random() },
-            { type: 'old', color: '#166534', points: 1, w: 22, h: 35, speed: 0.8, rot: Math.random() },
-            { type: 'dead', color: '#9a3412', points: -2, w: 18, h: 30, speed: 1.0, rot: Math.random() }
+            { type: 'tender', color: '#84cc16', points: 5, w: 15, h: 25, speed: 3.5, rot: Math.random(), isBuggy: false },
+            { type: 'tender', color: '#bef264', points: 5, w: 12, h: 20, speed: 4.2, rot: Math.random(), isBuggy: false },
+            { type: 'old', color: '#166534', points: 1, w: 22, h: 35, speed: 2.5, rot: Math.random(), isBuggy: false },
+            { type: 'dead', color: '#9a3412', points: -2, w: 18, h: 30, speed: 3.0, rot: Math.random(), isBuggy: false },
+            { type: 'buggy', color: '#a3e635', points: -5, w: 16, h: 26, speed: 3.8, rot: Math.random(), isBuggy: true }
         ];
         const t = types[Math.floor(Math.random() * types.length)];
         leaves.push({
@@ -481,7 +515,7 @@
         });
     }
 
-    function drawTeaLeaf(ctx, x, y, w, h, color, rot) {
+    function drawTeaLeaf(ctx, x, y, w, h, color, rot, isBuggy) {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rot);
@@ -491,19 +525,36 @@
         ctx.quadraticCurveTo(w/2, 0, 0, h/2);
         ctx.quadraticCurveTo(-w/2, 0, 0, -h/2);
         ctx.fill();
-        // Vein
+        
+        // 葉脈
         ctx.strokeStyle = 'rgba(255,255,255,0.3)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, -h/2 + 2);
         ctx.lineTo(0, h/2 - 2);
         ctx.stroke();
+
+        // 蟲咬與小蟲效果
+        if(isBuggy) {
+            ctx.fillStyle = '#1a2e05'; // 黑色蟲洞
+            ctx.beginPath();
+            ctx.arc(w/4, -h/4, 2.5, 0, Math.PI*2);
+            ctx.arc(-w/5, h/5, 2, 0, Math.PI*2);
+            ctx.arc(w/6, h/3, 1.5, 0, Math.PI*2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'red'; // 紅色小蟲
+            ctx.beginPath();
+            ctx.arc(-w/4, -h/8, 1.5, 0, Math.PI*2);
+            ctx.fill();
+        }
+
         ctx.restore();
     }
 
     function drawBasket(x, y) {
-        // Character Body/Head behind basket
-        pickCtx.fillStyle = state.character === 'boy' ? '#A7C7E7' : '#A7C7E7';
+        // Character Behind
+        pickCtx.fillStyle = '#A7C7E7';
         pickCtx.beginPath();
         pickCtx.arc(x, y - 20, 20, Math.PI, 0);
         pickCtx.fill();
@@ -528,7 +579,7 @@
             pickCtx.fill();
         }
 
-        // Bamboo Basket Main Shape
+        // Bamboo Basket
         pickCtx.fillStyle = '#DEB887';
         pickCtx.beginPath();
         pickCtx.moveTo(x - 45, y);
@@ -537,7 +588,6 @@
         pickCtx.lineTo(x - 35, y + 50);
         pickCtx.fill();
         
-        // Woven texture
         pickCtx.strokeStyle = '#CD853F';
         pickCtx.lineWidth = 2;
         pickCtx.beginPath();
@@ -551,7 +601,6 @@
         }
         pickCtx.stroke();
         
-        // Basket Rim
         pickCtx.strokeStyle = '#8B4513';
         pickCtx.lineWidth = 4;
         pickCtx.beginPath();
@@ -563,14 +612,12 @@
     function pickLoop(timestamp) {
         const dt = timestamp - lastTime;
         
-        // Clear & Sky Gradient
         let skyGrad = pickCtx.createLinearGradient(0,0,0,pickHeight);
         skyGrad.addColorStop(0, '#87CEEB');
         skyGrad.addColorStop(1, '#E0F6FF');
         pickCtx.fillStyle = skyGrad; 
         pickCtx.fillRect(0, 0, pickWidth, pickHeight);
         
-        // Draw Mountains
         pickCtx.fillStyle = '#8FBC8F';
         pickCtx.beginPath();
         pickCtx.moveTo(0, pickHeight - 150);
@@ -580,7 +627,6 @@
         pickCtx.lineTo(0, pickHeight);
         pickCtx.fill();
 
-        // Draw Tea Bushes (Layers)
         pickCtx.fillStyle = '#2E8B57';
         pickCtx.beginPath();
         for(let i=0; i<=pickWidth+50; i+=60) {
@@ -594,36 +640,35 @@
         }
         pickCtx.fill();
 
-        // Spawn
-        if(Math.random() < 0.02) spawnLeaf();
+        if(Math.random() < 0.04) spawnLeaf(); // 生成頻率
 
-        // Update & Draw Leaves
         const basketY = pickHeight - 70;
         for (let i = leaves.length - 1; i >= 0; i--) {
             let l = leaves[i];
             l.y += l.speed;
             l.swing += 0.05;
-            let actualX = l.x + Math.sin(l.swing) * 20; // Swaying motion
+            let actualX = l.x + Math.sin(l.swing) * 20; 
             
-            drawTeaLeaf(pickCtx, actualX, l.y, l.w, l.h, l.color, l.rot + l.swing*0.2);
+            drawTeaLeaf(pickCtx, actualX, l.y, l.w, l.h, l.color, l.rot + l.swing*0.2, l.isBuggy);
 
-            // Collision
             if (l.y + l.h/2 > basketY && l.y < basketY + 20 && Math.abs(actualX - basketX) < 45) {
                 state.pickScore += l.points;
                 document.getElementById('pick-score').innerText = `分數: ${state.pickScore}`;
                 leaves.splice(i, 1);
-                // Flash effect
-                pickCtx.fillStyle = l.points > 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,0,0,0.2)';
+                
+                // 接到不同葉子的閃爍特效
+                if (l.points > 0) pickCtx.fillStyle = 'rgba(255,255,255,0.4)';
+                else if (l.isBuggy) pickCtx.fillStyle = 'rgba(255,0,0,0.4)'; // 蟲葉強烈紅閃
+                else pickCtx.fillStyle = 'rgba(255,165,0,0.3)'; // 枯葉橘閃
                 pickCtx.fillRect(0,0,pickWidth,pickHeight);
+
             } else if (l.y > pickHeight + 30) {
                 leaves.splice(i, 1);
             }
         }
 
-        // Draw Player/Basket
         drawBasket(basketX, basketY);
 
-        // Timer
         if (dt > 1000) {
             pickTimeLeft--;
             document.getElementById('pick-time').innerText = `${pickTimeLeft}s`;
@@ -633,7 +678,6 @@
         if (pickTimeLeft > 0) {
             pickRAF = requestAnimationFrame(pickLoop);
         } else {
-            // End minigame
             setTimeout(() => {
                 showScreen('part5-intro');
             }, 1000);
@@ -663,7 +707,6 @@
         document.getElementById('roast-progress-bar').style.width = '0%';
         roastStartTime = performance.now();
 
-        // Init leaves in wok
         roastLeaves = [];
         const centerX = roastWidth/2;
         const centerY = roastHeight/2 + 50;
@@ -674,11 +717,10 @@
                 baseX: centerX,
                 baseY: centerY,
                 angle: Math.random() * Math.PI * 2,
-                color: '#4CAF50' // Starts green, turns dark
+                color: '#4CAF50'
             });
         }
 
-        // Interaction
         const handleDown = (e) => {
             isTouching = true;
             let clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -688,7 +730,7 @@
         };
 
         const handleMove = (e) => {
-            e.preventDefault(); // Prevent scrolling
+            e.preventDefault();
             if (!isTouching) return;
             
             let clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -702,18 +744,16 @@
             let speed = Math.sqrt(dx*dx + dy*dy);
             
             if (speed > 2) {
-                state.roastProgress += speed * 0.015; // Adjusted speed scale
+                state.roastProgress += speed * 0.015;
                 if(state.roastProgress > 100) state.roastProgress = 100;
                 document.getElementById('roast-progress-bar').style.width = `${state.roastProgress}%`;
                 
                 document.getElementById('roast-instruction').style.display = 'none';
 
-                // Agitate leaves
                 roastLeaves.forEach(l => {
                     l.x += (Math.random() - 0.5) * speed * 0.6;
                     l.y += (Math.random() - 0.5) * speed * 0.6;
                     
-                    // Keep in wok
                     let dist = Math.hypot(l.x - centerX, l.y - centerY);
                     if(dist > 120) {
                         l.x = centerX + (l.x - centerX) * (120/dist);
@@ -738,21 +778,18 @@
     }
 
     function roastLoop(timestamp) {
-        // Clear
-        roastCtx.fillStyle = '#2c1e16'; // Dark rustic bg
+        roastCtx.fillStyle = '#2c1e16';
         roastCtx.fillRect(0, 0, roastWidth, roastHeight);
         
         const centerX = roastWidth/2;
         const centerY = roastHeight/2 + 20;
 
-        // Draw Fire glow
         const fireGlow = roastCtx.createRadialGradient(centerX, centerY+120, 20, centerX, centerY+120, 150);
         fireGlow.addColorStop(0, 'rgba(255, 100, 0, 0.6)');
         fireGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
         roastCtx.fillStyle = fireGlow;
         roastCtx.fillRect(0, 0, roastWidth, roastHeight);
 
-        // Draw Wok (Iron pan) with metallic sheen
         const gradient = roastCtx.createRadialGradient(centerX, centerY, 60, centerX, centerY, 160);
         gradient.addColorStop(0, '#5a5a5a');
         gradient.addColorStop(0.7, '#222');
@@ -762,7 +799,6 @@
         roastCtx.arc(centerX, centerY, 160, 0, Math.PI*2);
         roastCtx.fill();
         
-        // Wok Rim
         roastCtx.strokeStyle = '#8a8a8a';
         roastCtx.lineWidth = 6;
         roastCtx.beginPath();
@@ -772,16 +808,13 @@
         roastCtx.lineWidth = 2;
         roastCtx.stroke();
 
-        // Draw Leaves
-        // Color transition: Vivid Green -> Dark Olive/Brown
         let r = Math.floor(132 - (state.roastProgress * 0.9)); 
         let g = Math.floor(204 - (state.roastProgress * 1.5));
         let b = Math.floor(22 - (state.roastProgress * 0.1));
         if(r<40) r=40; if(g<50) g=50; if(b<20) b=20;
         let leafColor = `rgb(${r},${g},${b})`;
         
-        // Shrink leaves as they roast
-        let shrink = 1 - (state.roastProgress * 0.004); // max shrink to 60%
+        let shrink = 1 - (state.roastProgress * 0.004);
 
         roastLeaves.forEach((l, i) => {
             roastCtx.save();
@@ -791,25 +824,21 @@
             
             roastCtx.fillStyle = leafColor;
             roastCtx.beginPath();
-            // Draw a more realistic leaf shape
             roastCtx.moveTo(0, -10);
             roastCtx.quadraticCurveTo(8, 0, 0, 10);
             roastCtx.quadraticCurveTo(-8, 0, 0, -10);
             roastCtx.fill();
             roastCtx.restore();
             
-            // Gravity pull back to center slowly
             l.x += (centerX - l.x) * 0.06;
             l.y += (centerY - l.y) * 0.06;
         });
 
-        // Hands (Gloves) and Wooden Spatula near mouse pos
         if(isTouching) {
             let hx = currentMousePos.x;
             let hy = currentMousePos.y;
             
-            // Spatula
-            roastCtx.fillStyle = '#D2B48C'; // Wood color
+            roastCtx.fillStyle = '#D2B48C';
             roastCtx.beginPath();
             roastCtx.moveTo(hx - 10, hy + 40);
             roastCtx.lineTo(hx + 10, hy + 40);
@@ -819,18 +848,16 @@
             roastCtx.strokeStyle = '#8B4513';
             roastCtx.stroke();
 
-            // Hands (Gloves)
-            roastCtx.fillStyle = '#F5F5F5'; // White gloves
+            roastCtx.fillStyle = '#F5F5F5';
             roastCtx.shadowColor = 'rgba(0,0,0,0.3)';
             roastCtx.shadowBlur = 5;
             roastCtx.beginPath();
-            roastCtx.arc(hx, hy + 20, 25, 0, Math.PI*2); // Hand holding handle
+            roastCtx.arc(hx, hy + 20, 25, 0, Math.PI*2);
             roastCtx.fill();
-            roastCtx.shadowBlur = 0; // reset
+            roastCtx.shadowBlur = 0;
         }
 
-        // Time mapping: 30s real time = 3 mins (180s) game time
-        let elapsedReal = (timestamp - roastStartTime) / 1000; // seconds
+        let elapsedReal = (timestamp - roastStartTime) / 1000;
         if (elapsedReal > 30) elapsedReal = 30;
         
         let simSeconds = Math.floor((elapsedReal / 30) * 180);
@@ -839,7 +866,6 @@
         document.getElementById('roast-sim-time').innerText = `0${m}:${s<10?'0':''}${s}`;
 
         if (state.roastProgress >= 100 || elapsedReal >= 30) {
-            // End
             state.roastProgress = 100;
             document.getElementById('roast-progress-bar').style.width = '100%';
             setTimeout(() => {
@@ -864,7 +890,7 @@
             clearInterval(pourInterval);
             pourInterval = setInterval(() => {
                 if (currentWaterVolume < maxWater) {
-                    currentWaterVolume += 2; // 注水速度
+                    currentWaterVolume += 2;
                     updateBrewVals();
                 }
             }, 20);
@@ -888,19 +914,17 @@
         document.getElementById('val-water-poured').innerText = Math.floor(currentWaterVolume) + ' ml';
         document.getElementById('val-temp').innerText = document.getElementById('slider-temp').value + ' °C';
         
-        // Update visual liquid in the cup
-        let h = (currentWaterVolume / 250) * 40; // 250ml 視覺上滿杯 (高度40)
+        let h = (currentWaterVolume / 250) * 40; 
         if (h > 40) h = 40;
         let y = 80 - h;
         
         const t = parseFloat(document.getElementById('slider-tea').value);
         const w = currentWaterVolume;
         
-        // 顏色根據比例變化
         let ratio = w / t; 
         let opacity = 0.8;
-        if (ratio < 30) opacity = 0.95; // 茶太濃
-        if (ratio > 80) opacity = 0.5;  // 茶太淡
+        if (ratio < 30) opacity = 0.95; 
+        if (ratio > 80) opacity = 0.5;  
         if (w === 0) opacity = 0;
         
         document.getElementById('liquid-fill').setAttribute('y', y);
@@ -917,6 +941,7 @@
         
         let feedback = "";
         let stars = 0;
+        let title = "";
 
         let ratioOk = (ratio >= 40 && ratio <= 60);
         let tempOk = (temp >= 85 && temp <= 95);
@@ -924,17 +949,21 @@
         if (ratioOk && tempOk) {
             feedback = "完美！茶水比例（1:50）與水溫（85-95度）掌握得恰到好處，這杯英德紅茶香氣濃郁，湯色紅亮，是待客的上品！";
             stars = 3;
+            title = "非遺傳承人";
         } else if (ratioOk || tempOk) {
             if (!ratioOk) feedback = ratio > 60 ? `水溫合適，但茶味稍淡（目前比例為 1:${Math.floor(ratio)}，水太多了）。` : `水溫合適，但茶味過濃發苦（目前比例為 1:${Math.floor(ratio)}，水太少了）。`;
             if (!tempOk) feedback = temp < 85 ? "比例不錯，但水溫偏低，茶香未能完全散發。" : "比例不錯，但水溫過高，破壞了嫩葉的口感。";
             stars = 2;
+            title = "制茶達人";
         } else {
             if (water === 0) {
                 feedback = "你還沒有加水呢！記得按住按鈕注入熱水。";
                 stars = 0;
+                title = "見習學徒";
             } else {
                 feedback = "仍需努力！沖泡紅茶是一門學問，記得黃金比例1:50和85-95度的水溫哦。";
                 stars = 1;
+                title = "制茶技師";
             }
         }
 
@@ -943,10 +972,18 @@
         document.getElementById('final-brew-feedback').innerText = feedback;
         document.getElementById('final-stars').innerText = '★'.repeat(stars) + '☆'.repeat(3-stars);
         
+        // Setup Stamp
+        document.getElementById('stamp-title').innerText = title;
+        document.getElementById('final-stamp').classList.remove('animate-stamp'); // reset if played again
+        
         showScreen('part7');
+
+        // Trigger stamp animation after a short delay
+        setTimeout(() => {
+            document.getElementById('final-stamp').classList.add('animate-stamp');
+        }, 600);
     }
 
-    // 初始化泡茶遊戲事件
     setupBrewingGame();
 
 </script>
